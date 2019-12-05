@@ -881,3 +881,54 @@ def _nonmonotone_line_search_cheng(f, x_k, d, f_k, C, Q, eta,
     Q = Q_next
 
     return alpha, xp, fp, Fp, C, Q
+
+
+def simple_line_search(f, xk, pk, old_fval, old_old_fval,
+                       amin=1e-100, amax=1e100):
+    """
+    Simple line search implemented for non-smooth functions where the
+    derivative is unusable.
+
+    Parameters
+    ----------
+    f : callable
+        Function returning a tuple ``(f, F)`` where ``f`` is the value
+        of a merit function and ``F`` the residual.
+    xk : ndarray
+        Initial position
+    pk : ndarray
+        Search direction
+    old_fval : float
+        Function value in xk
+
+    Returns
+    -------
+    alpha : float
+        Step length
+    xp : ndarray
+        Next position
+    fval: float
+        Function value in next position
+    old_fval: float
+        Function value at previous step
+    """
+    stp = amax
+    expected_improvement = (old_old_fval - old_fval) * 0.1
+    fval = np.Infinity
+    min_fval = np.Infinity
+    min_x = xk
+    min_stp = stp
+
+    while (old_fval - fval) < expected_improvement and stp > amin:
+        x_current = xk + stp * pk
+        fval = f(x_current)
+        if fval < min_fval:
+            min_fval = fval
+            min_x = x_current
+            min_stp = stp
+        stp /= 2
+
+    if min_fval > old_fval:
+        warn('The line search algorithm did not converge', LineSearchWarning)
+
+    return min_stp, min_x, min_fval, old_fval

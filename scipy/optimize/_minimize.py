@@ -20,7 +20,7 @@ from scipy._lib.six import callable
 
 # unconstrained minimization
 from .optimize import (_minimize_neldermead, _minimize_powell, _minimize_cg,
-                       _minimize_bfgs, _minimize_newtoncg,
+                       _minimize_cg_ns, _minimize_bfgs, _minimize_newtoncg,
                        _minimize_scalar_brent, _minimize_scalar_bounded,
                        _minimize_scalar_golden, MemoizeJac)
 from ._trustregion_dogleg import _minimize_dogleg
@@ -600,6 +600,8 @@ def minimize(fun, x0, args=(), method=None, jac=None, hess=None,
         return _minimize_powell(fun, x0, args, callback, **options)
     elif meth == 'cg':
         return _minimize_cg(fun, x0, args, jac, callback, **options)
+    elif meth == 'cg-ns':
+        return _minimize_cg_ns(fun, x0, args, jac, callback, **options)
     elif meth == 'bfgs':
         return _minimize_bfgs(fun, x0, args, jac, callback, **options)
     elif meth == 'newton-cg':
